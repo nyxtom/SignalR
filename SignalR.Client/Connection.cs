@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SignalR.Client.Transports;
+using System.Net;
 
 namespace SignalR.Client {
     public class Connection {
@@ -18,6 +19,8 @@ namespace SignalR.Client {
 
             Url = url;
         }
+
+        public ICredentials Credentials { get; set; }
 
         public Func<string> Sending { get; set; }
 
@@ -44,7 +47,7 @@ namespace SignalR.Client {
 
             string negotiateUrl = Url + "negotiate";
 
-            return HttpHelper.PostAsync(negotiateUrl).Success(task => {
+            return HttpHelper.PostAsync(negotiateUrl, this.PrepareWebRequest).Success(task => {
                 string raw = task.Result.ReadAsString();
 
                 var negotiationResponse = JsonConvert.DeserializeObject<NegotiationResponse>(raw);
@@ -66,6 +69,12 @@ namespace SignalR.Client {
             finally {
                 IsActive = false;
             }
+        }
+
+        private void PrepareWebRequest(WebRequest request)
+        {
+            if (this.Credentials != null)
+                request.Credentials = this.Credentials;
         }
 
         public Task Send(string data) {

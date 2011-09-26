@@ -29,6 +29,10 @@ namespace SignalR {
             return PostInternal(url, _ => { }, new Dictionary<string, string>());
         }
 
+        public static Task<HttpWebResponse> PostAsync(string url, Action<WebRequest> requestPreparer) {
+            return PostInternal(url, requestPreparer, new Dictionary<string, string>());
+        }
+
         public static Task<HttpWebResponse> PostAsync(string url, IDictionary<string, string> postData) {
             return PostInternal(url, _ => { }, postData);
         }
